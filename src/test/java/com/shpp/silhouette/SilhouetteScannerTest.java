@@ -46,7 +46,6 @@ class SilhouetteScannerTest {
                 Arguments.of("test23.png", 8),
                 Arguments.of("test24.png", 2),
                 Arguments.of("test25.png", 2),
-                Arguments.of("test26.png", 6)
-        );
+                Arguments.of("test26.png", 6));
     }
 }

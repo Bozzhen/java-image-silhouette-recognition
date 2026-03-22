@@ -1,6 +1,5 @@
 package com.shpp.silhouette;
 
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
@@ -19,16 +18,18 @@ import java.util.*;
  */
 public class SilhouetteScanner {
 
-	// Threshold for the percentage difference in color to consider two colors as different
+	// Threshold for the percentage difference in color to consider two colors as
+	// different
 	// 1% - 100% (default - 50%)
 	private static final int PERCENTAGE_COLOR_DIFFERENCE = 45;
 
-	// Scale used to determine if a silhouette is considered garbage and should be deleted
+	// Scale used to determine if a silhouette is considered garbage and should be
+	// deleted
 	// <1% - 100% (default - 1%)
 	private static final double PERCENTAGE_GARBAGE_SCALE = 1;
 
 	// Size of the erosion mask used in the image processing operation.
-	private static final int EROSION_MASK_SIZE = 10;
+	private static final int EROSION_MASK_SIZE = 5;
 
 	// List storing the sizes of all identified silhouettes
 	private static final ArrayList<Integer> silhouettes = new ArrayList<>();
@@ -56,7 +57,7 @@ public class SilhouetteScanner {
 			int[][] erosionImage = erosion(image);
 			countSilhouettes(erosionImage);
 			deleteGarbage(erosionImage);
-			showImage(image, erosionImage);
+			// showImage(image, erosionImage);
 			return silhouettes.size();
 		} catch (IOException e) {
 			throw new RuntimeException("no such file: " + path);
@@ -94,13 +95,16 @@ public class SilhouetteScanner {
 				// Get the color of the current pixel
 				temp = new Color(image.getRGB(x, y));
 
-				// Calculate the difference between the current pixel's color and the first color
+				// Calculate the difference between the current pixel's color and the first
+				// color
 				if (difference(temp, colors[0]) < PERCENTAGE_COLOR_DIFFERENCE) {
-					// If the difference is below the threshold, update the first color and increment its counter
+					// If the difference is below the threshold, update the first color and
+					// increment its counter
 					colors[0] = getAverageColor(colors[0], temp);
 					counters[0]++;
 				} else {
-					// If the difference is above the threshold, update the second color and increment its counter
+					// If the difference is above the threshold, update the second color and
+					// increment its counter
 					if (counters[1] != 0)
 						colors[1] = getAverageColor(colors[1], temp);
 					else
@@ -145,17 +149,19 @@ public class SilhouetteScanner {
 			for (int x = 0; x < width; x++) {
 				// Check if the current pixel is not visited and is part of a silhouette
 				if (!visited[y][x] && image[y][x] == 1)
-					silhouettes.add(bfs(image, visited, new int[]{y, x}));
+					silhouettes.add(bfs(image, visited, new int[] { y, x }));
 			}
 		}
 	}
 
 	/**
-	 * Performs breadth-first search (BFS) traversal on the image grid starting from the specified first pixel.
+	 * Performs breadth-first search (BFS) traversal on the image grid starting from
+	 * the specified first pixel.
 	 *
 	 * @param image      The image grid.
 	 * @param visited    A boolean array to track visited pixels.
-	 * @param firstPixel The coordinates of the first pixel to start the BFS traversal.
+	 * @param firstPixel The coordinates of the first pixel to start the BFS
+	 *                   traversal.
 	 */
 	private int bfs(int[][] image, boolean[][] visited, int[] firstPixel) {
 		int width = image[0].length;
@@ -169,7 +175,8 @@ public class SilhouetteScanner {
 			int x = pixel[0];
 			int y = pixel[1];
 
-			// Check if the current pixel is out of bounds, visited, or belongs to background (value 0)
+			// Check if the current pixel is out of bounds, visited, or belongs to
+			// background (value 0)
 			if (x < 0 || x >= height || y < 0 || y >= width
 					|| visited[x][y]
 					|| image[x][y] == 0) {
@@ -180,10 +187,10 @@ public class SilhouetteScanner {
 			pixelsCounter++; // Increment the depth counter
 
 			// Add adjacent pixels to the queue for further traversal
-			queue.add(new int[]{x, y + 1}); // Right
-			queue.add(new int[]{x + 1, y}); // Down
-			queue.add(new int[]{x, y - 1}); // Left
-			queue.add(new int[]{x - 1, y}); // Up
+			queue.add(new int[] { x, y + 1 }); // Right
+			queue.add(new int[] { x + 1, y }); // Down
+			queue.add(new int[] { x, y - 1 }); // Left
+			queue.add(new int[] { x - 1, y }); // Up
 		}
 
 		return pixelsCounter;
@@ -200,7 +207,8 @@ public class SilhouetteScanner {
 		int height = image.getHeight();
 		int[][] erosionImage = new int[height][width];
 
-		// Arrays to store the indices of shifts in the vertical and horizontal directions
+		// Arrays to store the indices of shifts in the vertical and horizontal
+		// directions
 		int[] ii = new int[EROSION_MASK_SIZE];
 		int[] jj = new int[EROSION_MASK_SIZE];
 
@@ -220,7 +228,8 @@ public class SilhouetteScanner {
 						int imageY = y + i; // Y-coordinate of the image, accounting for the shift
 						int imageX = x + j; // X-coordinate of the image, accounting for the shift
 
-						// Check if the pixel is within the bounds of the image and matches the mask condition
+						// Check if the pixel is within the bounds of the image and matches the mask
+						// condition
 						if (imageY >= 0 && imageY < height && imageX >= 0 && imageX < width
 								&& !isSilhouette(image, imageX, imageY)) {
 							match = false; // If any pixel does not match the conditions, set match to false
@@ -248,7 +257,8 @@ public class SilhouetteScanner {
 	 * @return True if the pixel is part of a silhouette, false otherwise.
 	 */
 	private boolean isSilhouette(BufferedImage image, int x, int y) {
-		// Calculate the difference between the color of the pixel and the predefined background color
+		// Calculate the difference between the color of the pixel and the predefined
+		// background color
 		double colorDifference = difference(new Color(image.getRGB(x, y)), BACKGROUND_COLOR);
 
 		// Compare the difference to the threshold percentage
@@ -256,7 +266,8 @@ public class SilhouetteScanner {
 	}
 
 	/**
-	 * Calculates the difference between two colors using a formula based on perceptual color difference.
+	 * Calculates the difference between two colors using a formula based on
+	 * perceptual color difference.
 	 *
 	 * @param firstColor  The first Color object.
 	 * @param secondColor The second Color object.
@@ -281,14 +292,16 @@ public class SilhouetteScanner {
 				* Math.pow(deltaR, 2)
 				+ (4 * Math.pow(deltaG, 2))
 				+ (2 + ((maxChannelValue - redAverage) / maxChannelValue + 1))
-				* Math.pow(deltaB, 2));
+						* Math.pow(deltaB, 2));
 
-		// Calculate and return the difference as a percentage of the maximum perceptual color difference
+		// Calculate and return the difference as a percentage of the maximum perceptual
+		// color difference
 		return delta / MAX_DELTA * 100;
 	}
 
 	/**
-	 * Deletes silhouettes that are considered garbage based on their size relative to the total image size.
+	 * Deletes silhouettes that are considered garbage based on their size relative
+	 * to the total image size.
 	 *
 	 * @param image The BufferedImage containing silhouettes.
 	 */
